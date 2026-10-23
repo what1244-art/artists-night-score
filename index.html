@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>예술인의 밤 모둠 점수판</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="제2회 예술인의 밤 · 모둠 점수판">
+<meta property="og:description" content="실시간 모둠 대항전 점수를 확인하세요">
+<meta property="og:image" content="https://what1244-art.github.io/artists-night-score/og.png">
+<meta property="og:url" content="https://what1244-art.github.io/artists-night-score/">
+<meta name="theme-color" content="#5a1620">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Montserrat:wght@500;600;700&family=Noto+Serif+KR:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--wine:#5a1620;--wine2:#6b1c28;--wine3:#7a2733;--paper:#f4ecdc;--card:#fbf6ec;--gold:#a8783a;--gold2:#e3c48c;--ink:#2b1013;--ink2:#4a2a2e;--mute:rgba(43,16,19,.55)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--wine);color:var(--ink);font-family:'Noto Serif KR',serif;min-height:100vh;padding:16px 16px 40px}
+.wrap{max-width:560px;margin:0 auto}
+.paper{background:var(--paper);background-image:radial-gradient(rgba(90,22,32,.05) 1px,transparent 1px);background-size:6px 6px;padding:12px}
+.in{border:1.5px solid var(--wine3);outline:1px solid rgba(122,39,51,.3);outline-offset:-6px;padding:0 0 22px}
+.band{background:var(--wine2);color:var(--paper);text-align:center;padding:22px 14px 20px}
+.band .t{font-family:'Montserrat',sans-serif;font-weight:600;font-size:11px;letter-spacing:.5em;text-indent:.5em}
+.band .s{margin-top:8px;font-family:'Playfair Display',serif;font-style:italic;font-size:19px;color:var(--gold2)}
+h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--wine);margin-top:20px;letter-spacing:.04em}
+.live{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:6px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:var(--gold)}
+.live i{width:8px;height:8px;border-radius:50%;background:#c0392b;animation:p 1.4s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.25}}
+.board{padding:18px 18px 0;display:flex;flex-direction:column;gap:10px}
+.row{position:relative;background:var(--card);border:1px solid rgba(168,120,58,.4);padding:14px 16px;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;overflow:hidden;transition:transform .3s}
+.row .bar{position:absolute;left:0;top:0;bottom:0;background:rgba(227,196,140,.35);transition:width .5s;z-index:0}
+.row>*{position:relative;z-index:1}
+.rk{font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--gold);text-align:center}
+.row.first{border-color:var(--wine2);box-shadow:0 2px 10px rgba(90,22,32,.15)}
+.row.first .rk{color:var(--wine2)}
+.nm{font-size:21px;font-weight:700;color:var(--ink)}
+.sub{font-family:'Montserrat','Noto Serif KR',sans-serif;font-size:11.5px;color:var(--mute);margin-top:3px;letter-spacing:.02em}
+.pt{font-family:'Playfair Display',serif;font-size:40px;font-weight:800;color:var(--wine2);min-width:56px;text-align:right}
+.pt small{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:500;color:var(--mute);margin-left:2px}
+.bump{animation:b .6s}
+@keyframes b{0%{transform:scale(1)}30%{transform:scale(1.04);background:#fff3d6}100%{transform:scale(1)}}
+.foot{text-align:center;margin-top:18px;font-size:12.5px;color:var(--mute)}
+.empty{text-align:center;color:var(--mute);padding:20px 0;font-size:14px}
+/* admin */
+.admin{display:none;margin:18px 18px 0;border:1.5px dashed var(--wine2);padding:16px;background:#fff9ee}
+.admin.on{display:block}
+.admin h2{font-size:17px;color:var(--wine);margin-bottom:10px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{font-family:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--wine2);background:#fff;color:var(--wine2)}
+.tabs button.on{background:var(--wine2);color:#fff}
+.ctl{display:grid;grid-template-columns:1fr repeat(4,auto);gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(168,120,58,.25)}
+.ctl b{font-size:16px}
+.ctl button{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;min-width:48px;padding:10px 6px;border:0;background:var(--wine2);color:#fff;touch-action:manipulation}
+.ctl button.m{background:#bbb}
+.ctl button.g{background:var(--gold)}
+.cfg{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.cfg label{font-size:13px;color:var(--ink2)}
+.cfg input,.cfg select{font-family:inherit;font-size:15px;padding:8px;border:1px solid rgba(107,28,40,.35);width:100%}
+.cfg .names{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.btnrow{display:flex;gap:8px;margin-top:10px}
+.btnrow button{flex:1;font-family:inherit;font-size:14px;padding:10px;border:1px solid var(--wine2);background:#fff;color:var(--wine2)}
+.btnrow button.danger{border-color:#c0392b;color:#c0392b}
+.log{margin-top:12px;font-size:12.5px;color:var(--ink2);max-height:160px;overflow:auto;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);font-size:14px;padding:11px 18px;opacity:0;transition:.25s;pointer-events:none;z-index:20;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.iab{display:none;position:sticky;top:0;z-index:30;margin:-16px -16px 14px;background:var(--ink);color:var(--paper);font-size:12px;padding:9px 12px;align-items:center;gap:8px}
+.iab.show{display:flex}.iab span{flex:1}
+.iab button{font-family:inherit;font-size:12px;border:1px solid rgba(244,236,220,.5);background:transparent;color:var(--paper);padding:5px 9px}
+.iab .x{border:0;font-size:16px}
+</style>
+</head>
+<body>
+<div class="iab" id="iab"><span>외부 브라우저에서 열면 더 편하게 보실 수 있어요.</span><button id="iab-go">브라우저로 열기</button><button class="x" id="iab-x" aria-label="닫기">×</button></div>
+<div class="wrap"><div class="paper"><div class="in">
+ <div class="band"><div class="t">TENET ENTERTAINMENT</div><div class="s">The Second Artists' Night</div></div>
+ <h1>모둠 점수판</h1>
+ <div class="live"><i></i>LIVE SCORE</div>
+ <div class="board" id="board"><div class="empty">점수를 불러오는 중…</div></div>
+ <div class="admin" id="admin">
+  <h2>사회자 점수 입력</h2>
+  <div class="tabs" id="tabs"></div>
+  <div id="ctls"></div>
+  <div class="btnrow"><button id="undo">마지막 입력 취소</button></div>
+  <details class="cfg"><summary style="font-size:13px;color:var(--ink2);cursor:pointer">모둠 설정 · 초기화</summary>
+   <label>모둠 수</label><select id="cnt"></select>
+   <label>모둠 이름</label><div class="names" id="names"></div>
+   <div class="btnrow"><button id="save">설정 저장</button><button id="reset" class="danger">점수 전체 초기화</button></div>
+  </details>
+  <div class="log" id="log"></div>
+ </div>
+ <div class="foot">점수는 자동으로 바로 반영됩니다</div>
+</div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var ua=navigator.userAgent||'', iab=document.getElementById('iab');
+  var inApp=/KAKAOTALK|Instagram|FBAN|FBAV|NAVER|Line\//i.test(ua), isAndroid=/Android/i.test(ua);
+  try{ if(inApp && !sessionStorage.getItem('iabx')) iab.classList.add('show'); }catch(e){ if(inApp) iab.classList.add('show'); }
+  if(!isAndroid) document.getElementById('iab-go').textContent='주소 복사';
+  document.getElementById('iab-x').onclick=function(){ iab.classList.remove('show'); try{sessionStorage.setItem('iabx','1');}catch(e){} };
+  document.getElementById('iab-go').onclick=function(){ var u=location.href.split('#')[0].split('?')[0];
+    if(isAndroid) location.href='intent://'+u.replace(/^https?:\/\//,'')+'#Intent;scheme=https;package=com.android.chrome;end';
+    else copy(u); };
+  var toastEl=document.getElementById('toast');
+  function toast(m){ toastEl.textContent=m; toastEl.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(function(){toastEl.classList.remove('show');},2000); }
+  function copy(t){ try{navigator.clipboard.writeText(t).then(function(){toast('주소를 복사했어요');});}catch(e){} }
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  var TOPIC='tenet2026-score';
+  var ROUNDS=[{id:'r1',name:'1초 노래 맞히기'},{id:'r2',name:'끼쟁이를 찾아라'},{id:'etc',name:'기타'}];
+  var ADMIN_HASH='6de19b320135d400c693c3aeddb152cbc651dd3cd4d3e132d989f85f4e2cf7e3';
+  var cur='r1', isAdmin=false, cfg={n:5,names:[]}, events=[], lastScores={}, myLast=[];
+  function teamName(i){ return (cfg.names[i]&&cfg.names[i].trim())||((i+1)+'모둠'); }
+
+  async function sha(s){ var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)); return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0');}).join(''); }
+  var key=new URLSearchParams(location.search).get('k')||'';
+  var adminReady = key && window.crypto && crypto.subtle ? sha(key).then(function(h){ isAdmin=(h===ADMIN_HASH); }) : Promise.resolve();
+
+  var firebaseConfig={apiKey:"AIzaSyBBthmZzkxRMaYgnIqeoNELuw2JPyxPd84",authDomain:"mtgogo-13e6e.firebaseapp.com",projectId:"mtgogo-13e6e",storageBucket:"mtgogo-13e6e.firebasestorage.app",messagingSenderId:"58814941767",appId:"1:58814941767:web:768fe9adbb4b5fe7fcff62"};
+  function load(src,cb,err){ var s=document.createElement('script'); s.src=src; s.onload=cb; s.onerror=err; document.head.appendChild(s); }
+  function fail(){ document.getElementById('board').innerHTML='<div class="empty">점수를 불러오지 못했어요. 새로고침해 주세요</div>'; }
+  var db, SV;
+
+  function compute(){
+    var resetAt=0, conf=null;
+    events.forEach(function(e){ if(e.kind==='reset'&&e.t>resetAt) resetAt=e.t; if(e.kind==='config'&&(!conf||e.t>conf.t)) conf=e; });
+    if(conf){ cfg={n:conf.n||5,names:conf.names||[]}; }
+    var sc=[]; for(var i=0;i<cfg.n;i++) sc.push({i:i,total:0,r:{}});
+    events.forEach(function(e){ if(e.kind!=='pt'||e.t<resetAt||e.team>=cfg.n) return; var s=sc[e.team]; s.total+=e.d; s.r[e.round]=(s.r[e.round]||0)+e.d; });
+    return sc;
+  }
+  function render(){
+    var sc=compute(), max=Math.max.apply(null,sc.map(function(s){return s.total;}).concat([1]));
+    var sorted=sc.slice().sort(function(a,b){return b.total-a.total||a.i-b.i;});
+    var rank=0, prev=null;
+    document.getElementById('board').innerHTML=sorted.map(function(s,k){
+      if(prev===null||s.total!==prev){ rank=k+1; prev=s.total; }
+      var subs=ROUNDS.filter(function(r){return s.r[r.id];}).map(function(r){return r.name.replace('1초 노래 맞히기','노래').replace('끼쟁이를 찾아라','끼쟁이')+' '+s.r[r.id];}).join(' · ');
+      var bump=(lastScores[s.i]!==undefined&&lastScores[s.i]!==s.total)?' bump':'';
+      return '<div class="row'+(rank===1&&s.total>0?' first':'')+bump+'"><div class="bar" style="width:'+Math.max(0,s.total/max*100)+'%"></div><div class="rk">'+rank+'</div><div><div class="nm">'+esc(teamName(s.i))+'</div><div class="sub">'+(subs||'아직 점수 없음')+'</div></div><div class="pt">'+s.total+'<small>점</small></div></div>';
+    }).join('');
+    sc.forEach(function(s){ lastScores[s.i]=s.total; });
+    if(isAdmin) renderAdmin(sc);
+  }
+  function renderAdmin(sc){
+    document.getElementById('admin').classList.add('on');
+    document.getElementById('tabs').innerHTML=ROUNDS.map(function(r){return '<button data-r="'+r.id+'" class="'+(r.id===cur?'on':'')+'">'+r.name+'</button>';}).join('');
+    document.getElementById('ctls').innerHTML=sc.map(function(s){ return '<div class="ctl"><b>'+esc(teamName(s.i))+' <span style="font-weight:400;color:var(--mute)">('+s.total+')</span></b><button class="m" data-t="'+s.i+'" data-d="-1">−1</button><button data-t="'+s.i+'" data-d="1">+1</button><button class="g" data-t="'+s.i+'" data-d="3">+3</button><button class="g" data-t="'+s.i+'" data-d="5">+5</button></div>'; }).join('');
+    var cnt=document.getElementById('cnt');
+    if(!cnt.options.length){ for(var k=2;k<=10;k++){ var o=document.createElement('option'); o.value=k; o.textContent=k+'모둠'; cnt.appendChild(o);} }
+    if(document.activeElement!==cnt) cnt.value=cfg.n;
+    var names=document.getElementById('names');
+    if(!names.contains(document.activeElement)){ var h=''; for(var j=0;j<parseInt(cnt.value,10);j++) h+='<input data-i="'+j+'" maxlength="12" placeholder="'+(j+1)+'모둠" value="'+esc(cfg.names[j]||'')+'">'; names.innerHTML=h; }
+    var rn={}; ROUNDS.forEach(function(r){rn[r.id]=r.name;});
+    document.getElementById('log').innerHTML=events.filter(function(e){return e.kind==='pt';}).slice(-12).reverse().map(function(e){ var d=new Date(e.t); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' · '+esc(teamName(e.team))+' '+(e.d>0?'+':'')+e.d+' ('+rn[e.round]+')'; }).join('<br>');
+  }
+  function add(o){ o.topic=TOPIC; o.t=Date.now(); o.ts=SV(); return db.collection('comments').add(o); }
+
+  document.addEventListener('click',function(ev){
+    if(!isAdmin) return;
+    var b=ev.target.closest('button'); if(!b) return;
+    if(b.dataset.r){ cur=b.dataset.r; render(); return; }
+    if(b.dataset.t!==undefined){ var t=+b.dataset.t, d=+b.dataset.d; b.disabled=true;
+      add({kind:'pt',team:t,d:d,round:cur}).then(function(){ myLast.push({team:t,d:d,round:cur}); toast(teamName(t)+' '+(d>0?'+':'')+d+'점'); }).catch(function(){ toast('입력 실패, 다시 눌러 주세요'); }).then(function(){ b.disabled=false; });
+      return; }
+    if(b.id==='undo'){ var l=myLast.pop(); if(!l){ toast('취소할 입력이 없어요'); return; } add({kind:'pt',team:l.team,d:-l.d,round:l.round}).then(function(){ toast('마지막 입력을 취소했어요'); }); return; }
+    if(b.id==='save'){ var n=parseInt(document.getElementById('cnt').value,10), nm=[]; document.querySelectorAll('#names input').forEach(function(i){ nm[+i.dataset.i]=i.value.trim(); });
+      add({kind:'config',n:n,names:nm}).then(function(){ toast('설정을 저장했어요'); }); return; }
+    if(b.id==='reset'){ if(!confirm('모든 모둠 점수를 0으로 초기화할까요?')) return; add({kind:'reset'}).then(function(){ myLast=[]; toast('점수를 초기화했어요'); }); return; }
+  });
+  document.getElementById('cnt').addEventListener('change',function(){ var names=document.getElementById('names'), h=''; for(var j=0;j<parseInt(this.value,10);j++) h+='<input data-i="'+j+'" maxlength="12" placeholder="'+(j+1)+'모둠" value="'+esc(cfg.names[j]||'')+'">'; names.innerHTML=h; });
+
+  load('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',function(){
+    load('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',function(){
+      try{
+        firebase.initializeApp(firebaseConfig); db=firebase.firestore(); SV=firebase.firestore.FieldValue.serverTimestamp;
+        adminReady.then(function(){
+          db.collection('comments').where('topic','==',TOPIC).onSnapshot(function(snap){
+            events=[]; snap.forEach(function(d){ events.push(d.data()); });
+            events.sort(function(a,b){return a.t-b.t;});
+            render();
+          },function(e){ console.error(e); fail(); });
+        });
+      }catch(e){ console.error(e); fail(); }
+    },fail);
+  },fail);
+})();
+</script>
+</body>
+</html>
