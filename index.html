@@ -153,7 +153,7 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
     var rn={}; ROUNDS.forEach(function(r){rn[r.id]=r.name;});
     document.getElementById('log').innerHTML=events.filter(function(e){return e.kind==='pt';}).slice(-12).reverse().map(function(e){ var d=new Date(e.t); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' · '+esc(teamName(e.team))+' '+(e.d>0?'+':'')+e.d+' ('+rn[e.round]+')'; }).join('<br>');
   }
-  function add(o){ o.topic=TOPIC; o.t=Date.now(); o.ts=SV(); return db.collection('comments').add(o); }
+  function add(o){ var k=o.kind; delete o.kind; o.t=Date.now(); return db.collection('comments').add({topic:TOPIC,name:k,text:JSON.stringify(o),ts:SV()}); }
 
   document.addEventListener('click',function(ev){
     if(!isAdmin) return;
@@ -175,7 +175,7 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
         firebase.initializeApp(firebaseConfig); db=firebase.firestore(); SV=firebase.firestore.FieldValue.serverTimestamp;
         adminReady.then(function(){
           db.collection('comments').where('topic','==',TOPIC).onSnapshot(function(snap){
-            events=[]; snap.forEach(function(d){ events.push(d.data()); });
+            events=[]; snap.forEach(function(d){ var v=d.data(); try{ var e=JSON.parse(v.text); e.kind=v.name; if(typeof e.t==='number') events.push(e); }catch(x){} });
             events.sort(function(a,b){return a.t-b.t;});
             render();
           },function(e){ console.error(e); fail(); });
