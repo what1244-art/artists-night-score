@@ -56,6 +56,7 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
 .cfg label{font-size:13px;color:var(--ink2)}
 .cfg input,.cfg select{font-family:inherit;font-size:15px;padding:8px;border:1px solid rgba(107,28,40,.35);width:100%}
 .cfg .names{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cfg .names input{font-size:16px;padding:10px}
 .btnrow{display:flex;gap:8px;margin-top:10px}
 .btnrow button{flex:1;font-family:inherit;font-size:14px;padding:10px;border:1px solid var(--wine2);background:#fff;color:var(--wine2)}
 .btnrow button.danger{border-color:#c0392b;color:#c0392b}
@@ -76,14 +77,18 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
  <div class="live"><i></i>LIVE SCORE</div>
  <div class="board" id="board"><div class="empty">점수를 불러오는 중…</div></div>
  <div class="admin" id="admin">
-  <h2>사회자 점수 입력</h2>
+  <h2>모둠 이름 정하기</h2>
+  <div class="cfg" style="margin:0 0 6px">
+   <div class="names" id="names"></div>
+   <div class="btnrow" style="margin-top:6px"><button id="save" style="background:var(--wine2);color:#fff">모둠 이름 저장</button></div>
+  </div>
+  <h2 style="margin-top:16px">사회자 점수 입력</h2>
   <div class="tabs" id="tabs"></div>
   <div id="ctls"></div>
   <div class="btnrow"><button id="undo">마지막 입력 취소</button></div>
-  <details class="cfg"><summary style="font-size:13px;color:var(--ink2);cursor:pointer">모둠 설정 · 초기화</summary>
+  <details class="cfg"><summary style="font-size:13px;color:var(--ink2);cursor:pointer">모둠 수 · 점수 초기화</summary>
    <label>모둠 수</label><select id="cnt"></select>
-   <label>모둠 이름</label><div class="names" id="names"></div>
-   <div class="btnrow"><button id="save">설정 저장</button><button id="reset" class="danger">점수 전체 초기화</button></div>
+   <div class="btnrow"><button id="savecnt">모둠 수 저장</button><button id="reset" class="danger">점수 전체 초기화</button></div>
   </details>
   <div class="log" id="log"></div>
  </div>
@@ -163,8 +168,8 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
       add({kind:'pt',team:t,d:d,round:cur}).then(function(){ myLast.push({team:t,d:d,round:cur}); toast(teamName(t)+' '+(d>0?'+':'')+d+'점'); }).catch(function(){ toast('입력 실패, 다시 눌러 주세요'); }).then(function(){ b.disabled=false; });
       return; }
     if(b.id==='undo'){ var l=myLast.pop(); if(!l){ toast('취소할 입력이 없어요'); return; } add({kind:'pt',team:l.team,d:-l.d,round:l.round}).then(function(){ toast('마지막 입력을 취소했어요'); }); return; }
-    if(b.id==='save'){ var n=parseInt(document.getElementById('cnt').value,10), nm=[]; document.querySelectorAll('#names input').forEach(function(i){ nm[+i.dataset.i]=i.value.trim(); });
-      add({kind:'config',n:n,names:nm}).then(function(){ toast('설정을 저장했어요'); }); return; }
+    if(b.id==='save'||b.id==='savecnt'){ var n=parseInt(document.getElementById('cnt').value,10), nm=[]; document.querySelectorAll('#names input').forEach(function(i){ nm[+i.dataset.i]=i.value.trim(); });
+      add({kind:'config',n:n,names:nm}).then(function(){ toast('모둠 이름을 저장했어요'); }); return; }
     if(b.id==='reset'){ if(!confirm('모든 모둠 점수를 0으로 초기화할까요?')) return; add({kind:'reset'}).then(function(){ myLast=[]; toast('점수를 초기화했어요'); }); return; }
   });
   document.getElementById('cnt').addEventListener('change',function(){ var names=document.getElementById('names'), h=''; for(var j=0;j<parseInt(this.value,10);j++) h+='<input data-i="'+j+'" maxlength="12" placeholder="'+(j+1)+'모둠" value="'+esc(cfg.names[j]||'')+'">'; names.innerHTML=h; });
