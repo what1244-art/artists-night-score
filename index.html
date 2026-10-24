@@ -47,11 +47,12 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .tabs button{font-family:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--wine2);background:#fff;color:var(--wine2)}
 .tabs button.on{background:var(--wine2);color:#fff}
-.ctl{display:grid;grid-template-columns:1fr repeat(4,auto);gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(168,120,58,.25)}
+.ctl{display:grid;grid-template-columns:1fr repeat(5,auto);gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(168,120,58,.25)}
 .ctl b{font-size:16px}
 .ctl button{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;min-width:48px;padding:10px 6px;border:0;background:var(--wine2);color:#fff;touch-action:manipulation}
 .ctl button.m{background:#bbb}
 .ctl button.g{background:var(--gold)}
+.ctl button.b20{background:#c0392b}
 .cfg{margin-top:14px;display:flex;flex-direction:column;gap:8px}
 .cfg label{font-size:13px;color:var(--ink2)}
 .cfg input,.cfg select{font-family:inherit;font-size:15px;padding:8px;border:1px solid rgba(107,28,40,.35);width:100%}
@@ -111,7 +112,7 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
   function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 
   var TOPIC='tenet2026-score';
-  var ROUNDS=[{id:'r1',name:'1초 노래 맞히기'},{id:'r2',name:'끼쟁이를 찾아라'},{id:'etc',name:'기타'}];
+  var ROUNDS=[{id:'r1',name:'1초 노래 맞히기'},{id:'r2',name:'끼쟁이를 찾아라'},{id:'bonus',name:'번외 게임 (20점)'},{id:'etc',name:'기타'}];
   var ADMIN_HASH='6de19b320135d400c693c3aeddb152cbc651dd3cd4d3e132d989f85f4e2cf7e3';
   var cur='r1', isAdmin=false, cfg={n:5,names:[]}, events=[], lastScores={}, myLast=[];
   function teamName(i){ return (cfg.names[i]&&cfg.names[i].trim())||((i+1)+'모둠'); }
@@ -139,7 +140,7 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
     var rank=0, prev=null;
     document.getElementById('board').innerHTML=sorted.map(function(s,k){
       if(prev===null||s.total!==prev){ rank=k+1; prev=s.total; }
-      var subs=ROUNDS.filter(function(r){return s.r[r.id];}).map(function(r){return r.name.replace('1초 노래 맞히기','노래').replace('끼쟁이를 찾아라','끼쟁이')+' '+s.r[r.id];}).join(' · ');
+      var subs=ROUNDS.filter(function(r){return s.r[r.id];}).map(function(r){return r.name.replace('1초 노래 맞히기','노래').replace('끼쟁이를 찾아라','끼쟁이').replace('번외 게임 (20점)','번외')+' '+s.r[r.id];}).join(' · ');
       var bump=(lastScores[s.i]!==undefined&&lastScores[s.i]!==s.total)?' bump':'';
       return '<div class="row'+(rank===1&&s.total>0?' first':'')+bump+'"><div class="bar" style="width:'+Math.max(0,s.total/max*100)+'%"></div><div class="rk">'+rank+'</div><div><div class="nm">'+esc(teamName(s.i))+'</div><div class="sub">'+(subs||'아직 점수 없음')+'</div></div><div class="pt">'+s.total+'<small>점</small></div></div>';
     }).join('');
@@ -149,7 +150,7 @@ h1{text-align:center;font-size:clamp(32px,9vw,42px);font-weight:700;color:var(--
   function renderAdmin(sc){
     document.getElementById('admin').classList.add('on');
     document.getElementById('tabs').innerHTML=ROUNDS.map(function(r){return '<button data-r="'+r.id+'" class="'+(r.id===cur?'on':'')+'">'+r.name+'</button>';}).join('');
-    document.getElementById('ctls').innerHTML=sc.map(function(s){ return '<div class="ctl"><b>'+esc(teamName(s.i))+' <span style="font-weight:400;color:var(--mute)">('+s.total+')</span></b><button class="m" data-t="'+s.i+'" data-d="-1">−1</button><button data-t="'+s.i+'" data-d="1">+1</button><button class="g" data-t="'+s.i+'" data-d="3">+3</button><button class="g" data-t="'+s.i+'" data-d="5">+5</button></div>'; }).join('');
+    document.getElementById('ctls').innerHTML=sc.map(function(s){ return '<div class="ctl"><b>'+esc(teamName(s.i))+' <span style="font-weight:400;color:var(--mute)">('+s.total+')</span></b><button class="m" data-t="'+s.i+'" data-d="-1">−1</button><button data-t="'+s.i+'" data-d="1">+1</button><button class="g" data-t="'+s.i+'" data-d="3">+3</button><button class="g" data-t="'+s.i+'" data-d="5">+5</button><button class="b20" data-t="'+s.i+'" data-d="20">+20</button></div>'; }).join('');
     var cnt=document.getElementById('cnt');
     if(!cnt.options.length){ for(var k=2;k<=10;k++){ var o=document.createElement('option'); o.value=k; o.textContent=k+'모둠'; cnt.appendChild(o);} }
     if(document.activeElement!==cnt) cnt.value=cfg.n;
